@@ -290,7 +290,8 @@ export default function Home() {
 
             {/* Network sections */}
             {NET_ORDER.filter(n => currentRole.networks.includes(n)).map(net => {
-              const stores = visibleStores.filter(s => s.network === net);
+              const stores = myStores.filter(s => s.network === net);
+              if (stores.length === 0) return null;
               const netAvg = (stores.reduce((a, s) => a + s.avgScore, 0) / stores.length).toFixed(2);
               const nc2 = NET_COLORS[net];
               return (
