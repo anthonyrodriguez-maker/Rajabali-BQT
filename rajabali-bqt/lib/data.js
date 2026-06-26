@@ -61,13 +61,6 @@ export const ROLES = {
     canEdit: false,
     networks: ['VRG'],
   },
-  ARL_SIDD: {
-    label: 'ARL — GRG',
-    name: 'Siddharth Patel',
-    canEdit: true,
-    networks: ['GRG'],
-    arlName: 'Siddharth Patel',
-  },
   ARL_BRYCE: {
     label: 'ARL — Omala',
     name: 'Bryce Cedio-Vierling',
@@ -95,12 +88,5 @@ export const ROLES = {
     canEdit: true,
     networks: ['TRG'],
     arlName: 'Katherine Cruz',
-  },
-  ARL_CHRISTY: {
-    label: 'ARL/NL — VRG',
-    name: 'Christy Elliott',
-    canEdit: true,
-    networks: ['VRG'],
-    arlName: 'Christy Elliott',
   },
 };
