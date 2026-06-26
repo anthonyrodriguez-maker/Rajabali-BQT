@@ -49,7 +49,6 @@ export default function Home() {
   const [selectedStore, setSelectedStore] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Visit form state
   const [vStore, setVStore] = useState('');
   const [vDate, setVDate] = useState('');
   const [vWeek, setVWeek] = useState('');
@@ -59,7 +58,6 @@ export default function Home() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Filters
   const [filterNet, setFilterNet] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [filterSearch, setFilterSearch] = useState('');
@@ -72,7 +70,7 @@ export default function Home() {
     ? STORES.filter(s => currentRole.networks.includes(s.network))
     : [];
 
-  const myStores = (currentRole?.arlName)
+  const myStores = currentRole?.arlName
     ? visibleStores.filter(s => s.arl === currentRole.arlName)
     : visibleStores;
 
@@ -173,7 +171,6 @@ export default function Home() {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  // LOGIN SCREEN
   if (!role) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f0', padding: '2rem' }}>
@@ -183,7 +180,6 @@ export default function Home() {
             <div style={{ fontSize: 22, fontWeight: 600, color: '#111', marginBottom: 4 }}>Q2 Bottom Quartile Tracker</div>
             <div style={{ fontSize: 14, color: '#6B7280' }}>Select your name to continue</div>
           </div>
-
           {NET_ORDER.map(net => {
             const netRoles = ROLE_OPTIONS.filter(r => r.networks.length === 1 && r.networks[0] === net);
             const nc = NET_COLORS[net];
@@ -192,7 +188,8 @@ export default function Home() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: nc.color, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>{net} — {NL_MAP[net]}</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {netRoles.map(r => (
-                    <button key={r.key} onClick={() => setRole(r.key)} style={{ background: '#fff', border: `1px solid #E5E7EB`, borderRadius: 8, padding: '10px 14px', textAlign: 'left', fontSize: 14, color: '#111', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'border-color 0.15s' }}
+                    <button key={r.key} onClick={() => setRole(r.key)}
+                      style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 8, padding: '10px 14px', textAlign: 'left', fontSize: 14, color: '#111', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = nc.accent}
                       onMouseLeave={e => e.currentTarget.style.borderColor = '#E5E7EB'}>
                       <span>{r.name}</span>
@@ -203,7 +200,6 @@ export default function Home() {
               </div>
             );
           })}
-
           <div style={{ marginTop: '1.5rem', borderTop: '1px solid #F3F4F6', paddingTop: '1rem' }}>
             <button onClick={() => setRole('VP')} style={{ width: '100%', background: '#111', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 16px', fontSize: 14, fontWeight: 500, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Anthony Rodriguez</span>
@@ -219,6 +215,7 @@ export default function Home() {
   const isNL = role.startsWith('NL_');
   const isARL = role.startsWith('ARL_');
   const nc = currentRole.networks.length === 1 ? NET_COLORS[currentRole.networks[0]] : { accent: '#111', color: '#111', bg: '#F9FAFB', border: '#E5E7EB' };
+  const canEdit = isVP || isNL || isARL;
 
   const filteredStores = visibleStores.filter(s => {
     if (filterNet && s.network !== filterNet) return false;
@@ -234,13 +231,12 @@ export default function Home() {
     return true;
   });
 
-  const opsCount = visibleStores.filter(s => storeStatus[s.store]?.opsComplete).length;
-  const planCount = visibleStores.filter(s => storeStatus[s.store]?.planSubmitted).length;
-  const visitTotal = visibleStores.reduce((a, s) => a + Object.values(visitTracker[s.store] || {}).filter(Boolean).length, 0);
+  const opsCount = myStores.filter(s => storeStatus[s.store]?.opsComplete).length;
+  const planCount = myStores.filter(s => storeStatus[s.store]?.planSubmitted).length;
+  const visitTotal = myStores.reduce((a, s) => a + Object.values(visitTracker[s.store] || {}).filter(Boolean).length, 0);
 
   return (
     <div style={{ minHeight: '100vh', background: '#f5f5f0' }}>
-      {/* Header */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB', padding: '0 1.5rem' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -255,11 +251,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div style={{ background: '#fff', borderBottom: '1px solid #E5E7EB' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', padding: '0 1.5rem' }}>
           {['dashboard', 'stores', 'visitlog', ...(isVP ? ['alerts'] : [])].map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ padding: '12px 16px', fontSize: 13, fontWeight: 500, color: tab === t ? '#111' : '#6B7280', background: 'none', border: 'none', borderBottom: tab === t ? '2px solid #111' : '2px solid transparent', marginBottom: -1, textTransform: t === 'visitlog' ? 'none' : 'none' }}>
+            <button key={t} onClick={() => setTab(t)} style={{ padding: '12px 16px', fontSize: 13, fontWeight: 500, color: tab === t ? '#111' : '#6B7280', background: 'none', border: 'none', borderBottom: tab === t ? '2px solid #111' : '2px solid transparent', marginBottom: -1 }}>
               {t === 'visitlog' ? 'Visit log' : t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
@@ -272,12 +267,11 @@ export default function Home() {
         {/* DASHBOARD */}
         {tab === 'dashboard' && (
           <div>
-            {/* Metric cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: '1.5rem' }}>
               {[
-                { label: 'BQ stores', value: visibleStores.length, sub: 'bottom 25% per network' },
-                { label: 'OPS assessments', value: `${opsCount} / ${visibleStores.length}`, sub: 'complete' },
-                { label: 'Action plans', value: `${planCount} / ${visibleStores.length}`, sub: 'submitted' },
+                { label: 'BQ stores', value: myStores.length, sub: 'bottom 25% per network' },
+                { label: 'DDOA complete', value: `${opsCount} / ${myStores.length}`, sub: 'assessments done' },
+                { label: 'Action plans', value: `${planCount} / ${myStores.length}`, sub: 'submitted' },
                 { label: 'Q3 visits logged', value: visitTotal, sub: 'across all stores' },
               ].map(m => (
                 <div key={m.label} style={{ background: '#fff', borderRadius: 10, padding: '1rem', border: '1px solid #E5E7EB' }}>
@@ -288,7 +282,6 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Network sections */}
             {NET_ORDER.filter(n => currentRole.networks.includes(n)).map(net => {
               const stores = myStores.filter(s => s.network === net);
               if (stores.length === 0) return null;
@@ -322,44 +315,34 @@ export default function Home() {
                             <span>{s.arl.split(' ').slice(-1)[0]}</span>
                             <span style={{ color: '#9CA3AF' }}>#{s.networkRank}/{s.networkTotal}</span>
                           </div>
-                          {/* Sparkline */}
                           <div style={{ display: 'flex', gap: 2, alignItems: 'flex-end', height: 24, marginBottom: 8 }}>
                             {s.weeklyScores.map((sc2, i) => (
                               <div key={i} style={{ flex: 1, height: Math.max(3, sc2 / 5 * 24), borderRadius: '2px 2px 0 0', background: sc2 < 2.5 ? '#EF4444' : sc2 < 3.0 ? '#F59E0B' : '#22C55E' }} />
                             ))}
                           </div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                            {(isVP || isNL) ? (
-                              <button onClick={e => cycleStatus(s.store, e)} style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px' }}>
-                                {statusLabel(st.status || 'pending')}
-                              </button>
-                            ) : (
-                              <span style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px' }}>
-                                {statusLabel(st.status || 'pending')}
-                              </span>
-                            )}
+                            <button onClick={e => cycleStatus(s.store, e)} style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px', cursor: 'pointer' }}>
+                              {statusLabel(st.status || 'pending')}
+                            </button>
                             <span style={{ fontSize: 11, color: trend === '↑' ? '#16A34A' : trend === '↓' ? '#DC2626' : '#6B7280', fontWeight: 500 }}>
                               {trend} {visitsDone > 0 ? `· ${visitsDone}/13` : ''}
                             </span>
                           </div>
-                          {isVP && (
-                            <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#6B7280' }} onClick={e => e.stopPropagation()}>
-                              <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-                                <input type="checkbox" checked={!!st.opsComplete} onChange={e => toggleCheck(s.store, 'opsComplete', e)} style={{ width: 'auto' }} />
-                                OPS done
-                              </label>
-                              <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
-                                <input type="checkbox" checked={!!st.planSubmitted} onChange={e => toggleCheck(s.store, 'planSubmitted', e)} style={{ width: 'auto' }} />
-                                Plan submitted
-                              </label>
-                            </div>
-                          )}
+                          <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#6B7280' }} onClick={e => e.stopPropagation()}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                              <input type="checkbox" checked={!!st.opsComplete} onChange={e => toggleCheck(s.store, 'opsComplete', e)} style={{ width: 'auto' }} />
+                              DDOA Complete
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                              <input type="checkbox" checked={!!st.planSubmitted} onChange={e => toggleCheck(s.store, 'planSubmitted', e)} style={{ width: 'auto' }} />
+                              Plan submitted
+                            </label>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Store detail panel */}
                   {stores.filter(s => s.store === selectedStore).map(s => (
                     <div key={s.store} style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: '1.25rem', marginTop: 8 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
@@ -396,8 +379,8 @@ export default function Home() {
                           );
                         })}
                       </div>
-                      <div style={{ marginTop: '1rem', display: 'flex', gap: 8 }}>
-                        <button onClick={() => { setTab('visitlog'); setVStore(s.store); }} style={{ fontSize: 12, background: '#111', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px' }}>
+                      <div style={{ marginTop: '1rem' }}>
+                        <button onClick={() => { setTab('visitlog'); setVStore(s.store); }} style={{ fontSize: 12, background: '#111', color: '#fff', border: 'none', borderRadius: 6, padding: '7px 14px', cursor: 'pointer' }}>
                           + Log a visit
                         </button>
                       </div>
@@ -432,7 +415,7 @@ export default function Home() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                    {['Store', 'Network', 'ARL', 'Q2 avg', 'Rank', 'Trend', 'Status', 'OPS', 'Plan'].map(h => (
+                    {['Store', 'Network', 'ARL', 'Q2 avg', 'Rank', 'Trend', 'Status', 'DDOA', 'Plan'].map(h => (
                       <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                     ))}
                   </tr>
@@ -453,11 +436,9 @@ export default function Home() {
                         <td style={{ padding: '9px 12px', color: '#9CA3AF', fontSize: 12 }}>#{s.networkRank}/{s.networkTotal}</td>
                         <td style={{ padding: '9px 12px', fontWeight: 600, color: trend === '↑' ? '#16A34A' : trend === '↓' ? '#DC2626' : '#6B7280' }}>{trend}</td>
                         <td style={{ padding: '9px 12px' }}>
-                          {isVP ? (
-                            <button onClick={e => cycleStatus(s.store, e)} style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px' }}>{statusLabel(st.status || 'pending')}</button>
-                          ) : (
-                            <span style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px' }}>{statusLabel(st.status || 'pending')}</span>
-                          )}
+                          <button onClick={e => cycleStatus(s.store, e)} style={{ fontSize: 11, fontWeight: 500, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}`, borderRadius: 20, padding: '2px 10px', cursor: 'pointer' }}>
+                            {statusLabel(st.status || 'pending')}
+                          </button>
                         </td>
                         <td style={{ padding: '9px 12px', color: st.opsComplete ? '#16A34A' : '#D1D5DB', fontSize: 16 }}>{st.opsComplete ? '✓' : '—'}</td>
                         <td style={{ padding: '9px 12px', color: st.planSubmitted ? '#16A34A' : '#D1D5DB', fontSize: 16 }}>{st.planSubmitted ? '✓' : '—'}</td>
@@ -483,7 +464,7 @@ export default function Home() {
                       <option value="">Select store…</option>
                       {NET_ORDER.filter(n => currentRole.networks.includes(n)).map(net => (
                         <optgroup key={net} label={net}>
-                          {(isARL ? myStores : visibleStores).filter(s => s.network === net).map(s => (
+                          {myStores.filter(s => s.network === net).map(s => (
                             <option key={s.store} value={s.store}>{s.store}</option>
                           ))}
                         </optgroup>
@@ -508,7 +489,7 @@ export default function Home() {
                       <option>Product quality</option>
                       <option>Guest experience</option>
                       <option>Food safety</option>
-                      <option>OPS assessment follow-up</option>
+                      <option>DDOA follow-up</option>
                       <option>Action plan review</option>
                       <option>Team development</option>
                       <option>Other</option>
@@ -528,7 +509,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <button type="submit" disabled={saving} style={{ background: '#111', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 500 }}>
+                  <button type="submit" disabled={saving} style={{ background: '#111', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
                     {saving ? 'Saving…' : 'Save visit log'}
                   </button>
                   {saved && <span style={{ fontSize: 13, color: '#16A34A', fontWeight: 500 }}>✓ Saved</span>}
@@ -536,11 +517,10 @@ export default function Home() {
               </form>
             </div>
 
-            {/* Log entries */}
             <div style={{ display: 'flex', gap: 8, marginBottom: '1rem', flexWrap: 'wrap' }}>
               <select value={logFilterStore} onChange={e => setLogFilterStore(e.target.value)} style={{ fontSize: 13, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', color: '#111' }}>
                 <option value="">All stores</option>
-                {visibleStores.map(s => <option key={s.store} value={s.store}>{s.store}</option>)}
+                {myStores.map(s => <option key={s.store} value={s.store}>{s.store}</option>)}
               </select>
               {(isVP || isNL) && (
                 <select value={logFilterNet} onChange={e => setLogFilterNet(e.target.value)} style={{ fontSize: 13, padding: '6px 10px', border: '1px solid #E5E7EB', borderRadius: 8, background: '#fff', color: '#111' }}>
@@ -585,7 +565,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* ALERTS (VP only) */}
+        {/* ALERTS — VP only */}
         {tab === 'alerts' && isVP && (
           <div>
             <div style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Action needed</div>
@@ -593,7 +573,7 @@ export default function Home() {
               <div key={`ops-${s.store}`} style={{ background: '#fff', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 14px', marginBottom: 6, display: 'flex', gap: 10 }}>
                 <span style={{ color: '#D97706', fontSize: 15 }}>⚠</span>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>OPS assessment needed — {s.store}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>DDOA not complete — {s.store}</div>
                   <div style={{ fontSize: 12, color: '#6B7280' }}>{s.network} · ARL: {s.arl} · Q2 avg: {s.avgScore.toFixed(2)}</div>
                 </div>
               </div>
